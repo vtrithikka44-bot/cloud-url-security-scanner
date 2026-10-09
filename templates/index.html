@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudURL Security Scanner - Cloud-Based URL Analysis</title>
+    <!-- Modern Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --pass-color: #16a34a;
+            --pass-bg: #dcfce7;
+            --pass-border: #bbf7d0;
+            --warn-color: #d97706;
+            --warn-bg: #fef3c7;
+            --warn-border: #fde68a;
+            --danger-color: #dc2626;
+            --danger-bg: #fee2e2;
+            --danger-border: #fecaca;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Header Navigation */
+        .top-navbar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: #ffffff;
+            padding: 1.25rem 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .navbar-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-badge {
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+            flex: 1;
+        }
+
+        /* Hero / Introduction */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #2563eb;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero-description {
+            color: var(--text-muted);
+            max-width: 680px;
+            margin: 0 auto;
+            font-size: 0.95rem;
+        }
+
+        /* Card Container */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        /* Input Form */
+        .scanner-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 0.9rem 1.2rem;
+            font-size: 1rem;
+            font-family: inherit;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            outline: none;
+            transition: all 0.2s ease;
+            background-color: #fafafa;
+        }
+
+        .url-input:focus {
+            border-color: var(--primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn-scan {
+            background-color: var(--primary);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            padding: 0 1.8rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-scan:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-scan:active {
+            transform: translateY(0);
+        }
+
+        /* Quick Test Examples */
+        .quick-tests {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .quick-tests span {
+            font-weight: 600;
+        }
+
+        .sample-pill {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: #334155;
+            font-family: monospace;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .sample-pill:hover {
+            background: #e2e8f0;
+            color: var(--primary);
+            border-color: #94a3b8;
+        }
+
+        /* Error Notification */
+        .alert-error {
+            background-color: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            color: var(--danger-color);
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Results Card */
+        .results-section {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .entered-url-preview {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            word-break: break-all;
+            margin-top: 0.25rem;
+            font-family: monospace;
+            background: #f8fafc;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        /* Risk Badge Display */
+        .badge-risk {
+            font-size: 0.95rem;
+            font-weight: 800;
+            padding: 0.45rem 1.1rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .badge-risk.low {
+            background-color: var(--pass-bg);
+            color: var(--pass-color);
+            border: 1.5px solid var(--pass-border);
+        }
+
+        .badge-risk.medium {
+            background-color: var(--warn-bg);
+            color: var(--warn-color);
+            border: 1.5px solid var(--warn-border);
+        }
+
+        .badge-risk.high {
+            background-color: var(--danger-bg);
+            color: var(--danger-color);
+            border: 1.5px solid var(--danger-border);
+        }
+
+        /* Metrics Summary Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .metric-card {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+
+        .metric-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            word-break: break-all;
+        }
+
+        /* Progress Bar for Score */
+        .score-bar-wrapper {
+            margin-top: 0.4rem;
+            background-color: #e2e8f0;
+            height: 8px;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s ease-in-out;
+            width: 0%;
+        }
+
+        .score-bar-fill.low {
+            background-color: var(--pass-color);
+        }
+
+        .score-bar-fill.medium {
+            background-color: var(--warn-color);
+        }
+
+        .score-bar-fill.high {
+            background-color: var(--danger-color);
+        }
+
+        /* Recommendation Banner */
+        .recommendation-banner {
+            padding: 0.9rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-size: 0.92rem;
+            margin-bottom: 1.75rem;
+            border-left: 4px solid;
+            font-weight: 500;
+        }
+
+        .recommendation-banner.low {
+            background-color: #f0fdf4;
+            border-color: var(--pass-color);
+            color: #166534;
+        }
+
+        .recommendation-banner.medium {
+            background-color: #fffbeb;
+            border-color: var(--warn-color);
+            color: #92400e;
+        }
+
+        .recommendation-banner.high {
+            background-color: #fef2f2;
+            border-color: var(--danger-color);
+            color: #991b1b;
+        }
+
+        /* Security Checks Table */
+        .table-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.85rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .table-stats {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+        }
+
+        .security-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.92rem;
+        }
+
+        .security-table th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            padding: 0.85rem 1.15rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .security-table td {
+            padding: 1rem 1.15rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .security-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .security-table tr:hover {
+            background-color: #fbfcfe;
+        }
+
+        .check-name {
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        /* Status Badges */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.3rem 0.75rem;
+            border-radius: 9999px;
+            letter-spacing: 0.03em;
+        }
+
+        .status-pill.pass {
+            background-color: var(--pass-bg);
+            color: var(--pass-color);
+            border: 1px solid var(--pass-border);
+        }
+
+        .status-pill.warning {
+            background-color: var(--warn-bg);
+            color: var(--warn-color);
+            border: 1px solid var(--warn-border);
+        }
+
+        .check-details {
+            color: #334155;
+            font-size: 0.88rem;
+        }
+
+        /* Info Card: Viva & Academic Disclaimer */
+        .info-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.75rem;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .info-card strong {
+            color: var(--text-main);
+        }
+
+        /* Footer */
+        .page-footer {
+            background-color: #ffffff;
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: auto;
+        }
+
+        @media (max-width: 640px) {
+            .input-group {
+                flex-direction: column;
+            }
+
+            .btn-scan {
+                padding: 0.85rem 1rem;
+                justify-content: center;
+            }
+
+            .results-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="top-navbar">
+        <div class="navbar-content">
+            <div class="brand-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                CloudURL Security Scanner
+            </div>
+            <span class="brand-badge">B.Tech Mini Project</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container">
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">CloudURL Security Scanner</h1>
+            <h2 class="hero-subtitle">Cloud-Based URL Security Analysis System</h2>
+            <p class="hero-description">
+                A rule-based preliminary heuristic security analysis tool for web URLs.
+                Inspect protocol integrity, domain structures, suspicious keywords, and evasion markers
+                locally without visiting or downloading target payloads.
+            </p>
+        </section>
+
+        <!-- URL Input Card -->
+        <section class="card">
+            <form action="/" method="POST" class="scanner-form">
+                <div class="input-group">
+                    <input type="text" name="url" id="urlInput" class="url-input"
+                        placeholder="Enter URL to inspect (e.g. https://www.google.com or http://example.com/login)"
+                        value="{{ url_input }}" required autocomplete="off">
+                    <button type="submit" class="btn-scan">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        Scan URL
+                    </button>
+                </div>
+
+                <!-- Quick Test Examples for Viva Demonstration -->
+                <div class="quick-tests">
+                    <span>Quick Test Samples:</span>
+                    <button type="button" class="sample-pill"
+                        onclick="setTestUrl('https://www.google.com')">https://www.google.com</button>
+                    <button type="button" class="sample-pill"
+                        onclick="setTestUrl('http://example.com')">http://example.com</button>
+                    <button type="button" class="sample-pill"
+                        onclick="setTestUrl('http://example.com/login/verify/account')">http://example.com/login/verify/account</button>
+                    <button type="button" class="sample-pill"
+                        onclick="setTestUrl('http://192.168.1.1/secure/login')">http://192.168.1.1/secure/login</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Error Alert -->
+        {% if error %}
+        <div class="alert-error">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Results Card (Rendered if analysis is available) -->
+        {% if result %}
+        <section class="card results-section">
+            <div class="results-header">
+                <div>
+                    <h3 class="results-title">Security Scan Report</h3>
+                    <span class="entered-url-preview">{{ result.entered_url }}</span>
+                </div>
+                <div>
+                    <span class="badge-risk {{ result.risk_badge }}">
+                        {% if result.risk_badge == 'low' %}
+                        ✓ {{ result.risk_level }} RISK
+                        {% elif result.risk_badge == 'medium' %}
+                        ▲ {{ result.risk_level }} RISK
+                        {% else %}
+                        ⚠ {{ result.risk_level }} RISK
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Overview Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Analyzed Domain</div>
+                    <div class="metric-value">{{ result.domain }}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Protocol</div>
+                    <div class="metric-value">{{ result.protocol }}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Risk Score</div>
+                    <div class="metric-value">{{ result.risk_score }} / 100</div>
+                    <div class="score-bar-wrapper">
+                        <div id="riskScoreBar" class="score-bar-fill {{ result.risk_badge }}"
+                            data-score="{{ result.risk_score }}"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Assessment</div>
+                    <div class="metric-value">{{ result.risk_level }}</div>
+                </div>
+            </div>
+
+            <!-- Recommendation Alert -->
+            <div class="recommendation-banner {{ result.risk_badge }}">
+                <strong>Security Assessment:</strong> {{ result.recommendation }}
+            </div>
+
+            <!-- Security Checks Table -->
+            <div class="table-title">
+                <span>Rule-Based Security Checks</span>
+                <span class="table-stats">Checks Passed: {{ result.checks_passed }} / {{ result.total_checks }}</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="security-table">
+                    <thead>
+                        <tr>
+                            <th>Security Check</th>
+                            <th>Status</th>
+                            <th>Inspection Details & Viva Explanation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for check in result.checks %}
+                        <tr>
+                            <td class="check-name">{{ check.name }}</td>
+                            <td>
+                                <span class="status-pill {{ check.badge }}">
+                                    {% if check.status == 'PASS' %}
+                                    ✓ PASS
+                                    {% else %}
+                                    ⚠ WARNING
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td class="check-details">{{ check.details }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Viva & Academic Context Card -->
+        <section class="info-card">
+            <strong>System Architecture Note:</strong>
+            This application is implemented as a lightweight, stateless web service ready for cloud application hosting
+            (PaaS platforms such as Render, Railway, or AWS Elastic Beanstalk).
+            All URL heuristics are performed locally in-memory using Python's <code>urllib.parse</code> and regex
+            matching.
+            No external requests are sent to target hosts, preventing remote code execution, server side request forgery
+            (SSRF), and outbound reconnaissance risks.
+        </section>
+
+    </main>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+        <p><strong>CloudURL Security Scanner</strong> &bull; Cloud Computing Mini Project &bull; Python & Flask
+            Architecture</p>
+    </footer>
+
+    <!-- Helper script for presets and dynamic progress bar -->
+    <script>
+        function setTestUrl(url) {
+            document.getElementById('urlInput').value = url;
+        }
+
+        // Dynamically apply score bar width without putting template braces in CSS
+        window.addEventListener('DOMContentLoaded', function () {
+            var bar = document.getElementById('riskScoreBar');
+            if (bar) {
+                var score = bar.getAttribute('data-score');
+                bar.style.width = score + '%';
+            }
+        });
+    </script>
+
+</body>
+
+</html>
